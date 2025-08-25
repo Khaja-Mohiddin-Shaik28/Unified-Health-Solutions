@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
-
+// router import
+const loginRegisterRouter = require("./router/loginRegisterRoute");
 
 
 // CORS Setup
@@ -24,4 +25,6 @@ dbConnection = async ()=>{
         app.listen(process.env.PORT || 3000);
 }
 dbConnection();
+
+app.use("/api",loginRegisterRouter)
 
