@@ -3,6 +3,7 @@ const app = express();
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
+const cookieParser = require("cookie-parser");
 
 // router import
 const loginRegisterRouter = require("./router/loginRegisterRoute");
@@ -18,6 +19,7 @@ app.use(cors(corsOptions))
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser())
 
 // Database Connection
 dbConnection = async ()=>{
