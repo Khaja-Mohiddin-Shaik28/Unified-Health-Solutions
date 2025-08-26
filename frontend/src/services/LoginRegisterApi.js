@@ -46,6 +46,27 @@ export const LoginRegisterApi = createApi({
         credentials: "include",
       }),
     }),
+    sendOtpApi: builder.mutation({
+      query: (emailId) => ({
+        url: "/send-otp",
+        method: "POST",
+        body: { emailId },
+      }),
+    }),
+    verifyOtpApi: builder.mutation({
+      query: ({ emailId, otp }) => ({
+        url: "/verify-otp",
+        method: "POST",
+        body: { emailId, otp },
+      }),
+    }),
+     resetPasswordApi: builder.mutation({
+      query: ({ emailId, newPassword }) => ({
+        url: "/reset-password",
+        method: "POST",
+        body: { emailId, newPassword },
+      }),
+    }),
   }),
 });
 
@@ -53,5 +74,8 @@ export const {
   useRegisterApiMutation,
   useDuplicateUserIdCheckerApiMutation,
   useLoginApiMutation,
-  useVerifyRouteQuery
+  useVerifyRouteQuery,
+  useSendOtpApiMutation,
+  useVerifyOtpApiMutation,
+  useResetPasswordApiMutation
 } = LoginRegisterApi;

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from "react-hook-form";
 import { useRegisterApiMutation, useDuplicateUserIdCheckerApiMutation } from '../../services/LoginRegisterApi';
 import { useNavigate } from 'react-router';
+
 function Register() {
   const [registerApi, { isLoading }] = useRegisterApiMutation();
   const [duplicateUserIdCheckerApi] = useDuplicateUserIdCheckerApiMutation();
@@ -12,7 +13,8 @@ function Register() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
+    watch
   } = useForm({ mode: 'onChange' });
 
   useEffect(() => {
@@ -122,6 +124,23 @@ function Register() {
             placeholder="••••••••"
           />
           {errors.password && <p className="text-xs sm:text-sm text-red-500">{errors.password.message}</p>}
+        </div>
+
+        {/* Confirm Password  */}
+        <div>
+          <label className="block text font-medium text-gray-700 mb-1">Confirm Password</label>
+          <input
+            type="password"
+            {...register('confirmPassword', {
+              required: 'Confirm Password is required',
+              validate: (value) => value === watch('password') || 'Passwords do not match'
+            })}
+            className="w-full border border-purple-300 rounded-lg px-3 py-2 
+              focus:ring-2 focus:ring-purple-500 focus:outline-none text-sm sm:text-base"
+            placeholder="••••••••"
+            onPaste={(e) => e.preventDefault()} // disable paste
+          />
+          {errors.confirmPassword && <p className="text-xs sm:text-sm text-red-500">{errors.confirmPassword.message}</p>}
         </div>
 
         {/* Submit */}

@@ -5,6 +5,8 @@ import Home from "./pages/public-pages/Home";
 import Login from './pages/public-pages/Login';
 import Register from './pages/public-pages/Register';
 import ForgotPassword from "./pages/public-pages/ForgotPassword";
+import VerifyOtp from "./pages/public-pages/VerifyOtp";
+import ResetPassword from "./pages/public-pages/ResetPassword";
 import Dashboard from "./pages/private-pages/user/Dashboard";
 
 function App() {
@@ -20,6 +22,8 @@ function App() {
           <Route path="/unified-health-tech/register" element={<Register />} />
           <Route path="/unified-health-tech/login" element={<Login />} />
           <Route path="/unified-health-tech/login/forgot-password" element={<ForgotPassword />} />
+          <Route path="/unified-health-tech/login/verify-otp" element={<VerifyOtp />} />
+          <Route path="/unified-health-tech/login/reset-password" element={<ResetPassword />} />
 
 
           {/* Routes for user dashboard */}
