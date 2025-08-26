@@ -72,24 +72,30 @@ const login = async (req, res) => {
       return res.status(401).json({ status: "Invalid Password" });
     } else {
       // Creating a jwt token
-      const token = jwt.sign({ userId: existingUserData.userId }, process.env.key, {
-        expiresIn: "1hr",
-      });
+      const token = jwt.sign(
+        { userId: existingUserData.userId },
+        process.env.key,
+        {
+          expiresIn: "7d",
+        }
+      );
 
       // storing token in a cookie
-      res.cookie("token", token, { httpOnly: true, maxAge: 3600000 });
+      // 7 days = 7 * 24 * 60 * 60 * 1000 ms
+      res.cookie("token", token, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
       return res.status(200).json({ status: existingUserData });
     }
-
   } catch (err) {
     return res.status(404).json({ status: `Login failed ${err.msg}` });
   }
 };
 
-
 module.exports = {
   register,
   duplicateUserIdChecker,
-  login
+  login,
 };
-

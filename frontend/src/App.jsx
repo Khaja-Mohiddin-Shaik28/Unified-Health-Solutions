@@ -1,10 +1,11 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Redirect from "./pages/Redirect";
-import Home from "./pages/Home";
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/user/Dashboard';
+import Redirect from "./pages/public-pages/Redirect";
+import Home from "./pages/public-pages/Home";
+import Login from './pages/public-pages/Login';
+import Register from './pages/public-pages/Register';
+import ForgotPassword from "./pages/public-pages/ForgotPassword";
+import Dashboard from "./pages/private-pages/user/Dashboard";
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
           <Route path="/unified-health-tech" element={<Home />} />
           <Route path="/unified-health-tech/register" element={<Register />} />
           <Route path="/unified-health-tech/login" element={<Login />} />
+          <Route path="/unified-health-tech/login/forgot-password" element={<ForgotPassword />} />
 
 
           {/* Routes for user dashboard */}

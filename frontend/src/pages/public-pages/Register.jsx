@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from "react-hook-form";
-import { useRegisterApiMutation, useDuplicateUserIdCheckerApiMutation } from '../services/LoginRegisterApi';
+import { useRegisterApiMutation, useDuplicateUserIdCheckerApiMutation } from '../../services/LoginRegisterApi';
 import { useNavigate } from 'react-router';
 function Register() {
   const [registerApi, { isLoading }] = useRegisterApiMutation();
@@ -46,12 +46,12 @@ function Register() {
 
   return (
     <div className="min-h-screen w-full flex flex-col justify-center items-center 
-     bg-gradient-to-r from-purple-300 via-purple-400 to-purple-500
+     bg-[#273953]
       px-4 sm:px-6 md:px-8">
       
       <div className="text-center mb-8 text-white drop-shadow-2xl">
-        <h1 className="text-2xl sm:text-3xl font-semibold">Create Your Account</h1>
-        <p className="mt-1 text-sm sm:text-base opacity-90">Report issues & get quick solutions</p>
+        <h1 className="text-2xl sm:text-3xl font-semibold">Unified Health Tech Solutions</h1>
+        <p className="mt-1 text-sm sm:text-base opacity-90">...</p>
       </div>
 
       <form 
@@ -61,7 +61,7 @@ function Register() {
 
         {/* User ID */}
         <div className="relative">
-          <label className="block text-sm font-medium text-gray-700 mb-1">User ID</label>
+          <label className="block text font-medium text-gray-700 mb-1">User ID</label>
           <input
             {...register('userId', {
               required: 'User ID is required',
@@ -87,7 +87,7 @@ function Register() {
 
         {/* Email */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <label className="block text font-medium text-gray-700 mb-1">Email</label>
           <input
           type='email'
             {...register('emailId', {
@@ -106,7 +106,7 @@ function Register() {
 
         {/* Password */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <label className="block text font-medium text-gray-700 mb-1">Password</label>
           <input
             type="password"
             {...register('password', {
@@ -128,10 +128,9 @@ function Register() {
         <button 
           type="submit" 
           disabled={isSubmitting || isLoading} 
-          className="w-full bg-gradient-to-br from-violet-500  to-violet-500
-            hover:from-violet-600 hover:to-violet-600 
-            text-white font-medium py-2 rounded-lg transition duration-200 
-            disabled:opacity-50 text-sm sm:text-base shadow-md
+          className="w-full bg-[#57FFFC69] 
+            lg:text-xl  py-2 rounded-lg transition duration-200
+            disabled:opacity-50  sm:text-base border-1
             cursor-pointer"
 
         >
@@ -140,11 +139,13 @@ function Register() {
 
         {errorResponse && <p className="text-xs sm:text-sm text-red-500 text-center">{errorResponse}</p>}
          {/* Link */}
-        <p className="text-xs sm:text-sm text-gray-600 text-center">
-          Already have an account?{' '}
-          <a href="/unified-health-tech/login" className="text-rose-500 hover:underline">Login</a>
-        </p>
       </form>
+         <div className='login mt-8'>
+        <p className="text-xs sm:text-sm text-white text-center">
+          Already have an account?{' '}
+          <a href="/unified-health-tech/login" className="text-[#9485FF] hover:underline">Login</a>
+        </p>
+        </div>
     </div>
   );
 }

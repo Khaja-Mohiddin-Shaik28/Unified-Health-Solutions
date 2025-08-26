@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useVerifyRouteQuery } from "../../services/LoginRegisterApi";
+import { useVerifyRouteQuery } from "../../../services/LoginRegisterApi";
 import { useNavigate, useParams } from "react-router-dom";
 
 function Dashboard() {
@@ -15,11 +15,12 @@ function Dashboard() {
   }, [error, data, isLoading, navigate]);
 
   if (isLoading) return <div>Loading...</div>;
-
+  
+  
   return (
     <div className="">
       <h1>Dashboard</h1>
-      <p>Welcome, {data?.user?.userId || userId}</p>
+      {/* <p>Welcome, {data?.user?.userId || userId}</p> */}
     </div>
   );
 }
