@@ -99,45 +99,68 @@ const login = async (req, res) => {
   }
 };
 
+// Send OTP (first time or reset)
 const sendOtp = async (req, res) => {
   const { emailId } = req.body;
-
-  // If emailId is sent as object, convert to string
   const emailIdString = typeof emailId === 'object' ? emailId.emailId : emailId;
 
   if (!emailIdString) return res.status(400).json({ status: "Email required" });
 
   try {
-    // Check if email exists in User DB
     const existingUser = await User.findOne({ emailId: emailIdString });
     if (!existingUser) {
       return res.status(404).json({ status: "Email not registered" });
     }
 
-    // Generate 6-digit secure OTP
+    let record = await Otp.findOne({ emailId: emailIdString });
+
+    // If user is blocked for 24 hours
+    if (record?.blockedUntil && record.blockedUntil > new Date()) {
+      return res.status(429).json({
+        status: "Too many attempts. Try again after 24 hours.",
+        blocked: true,
+        remaining: Math.ceil((record.blockedUntil - new Date()) / 1000)
+      });
+    }
+
+    // If OTP exists and not expired, prevent sending new one
+    if (record && record.expiresAt > new Date()) {
+      return res.status(400).json({
+        status: "OTP already sent. Please wait before requesting a new one."
+      });
+    }
+
+    // Generate new OTP
     const otpPlain = crypto.randomInt(100000, 999999).toString();
-
-    // Hash OTP
-    const salt = await bcrypt.genSalt(10);
-    const hashedOtp = await bcrypt.hash(otpPlain, salt);
-
-    // Expiration 10 minutes
+    const hashedOtp = await bcrypt.hash(otpPlain, 10);
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-    // Save OTP in DB
-    await Otp.findOneAndUpdate(
-      { emailId: emailIdString },
-      { otp: hashedOtp, expiresAt, createdAt: new Date() },
-      { upsert: true }
-    );
+    if (!record) {
+      record = new Otp({
+        emailId: emailIdString,
+        otp: hashedOtp,
+        expiresAt,
+        createdAt: new Date(),
+        attempts: 0,
+        resendCount: 0,
+        blockedUntil: null
+      });
+    } else {
+      // Reset OTP, but preserve block if it exists
+      record.otp = hashedOtp;
+      record.expiresAt = expiresAt;
+      record.createdAt = new Date();
+      record.attempts = 0;
+      record.resendCount = 0;
+      // blockedUntil is preserved if not null
+    }
+
+    await record.save();
 
     // Send OTP email
     const transporter = nodemailer.createTransport({
       service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
+      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
     });
 
     await transporter.sendMail({
@@ -148,6 +171,7 @@ const sendOtp = async (req, res) => {
     });
 
     res.status(200).json({ status: "OTP sent successfully" });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ status: "Failed to send OTP" });
@@ -155,14 +179,65 @@ const sendOtp = async (req, res) => {
 };
 
 
+
+
+//  Resend OTP - if user navigates back timer start again
+const resendOtp = async (req, res) => {
+  const { emailId } = req.body;
+   const emailIdString = typeof emailId === 'object' ? emailId.emailId : emailId;
+  if (!emailIdString) return res.status(400).json({ status: "Email required" });
+
+  try {
+    const record = await Otp.findOne({ emailId : emailIdString});
+    if (!record) return res.status(400).json({ status: "No OTP request found. Please request a new one." });
+
+    if (record.resendCount >= 3) {
+      return res.status(429).json({ status: "Resend limit reached. Please try later after 24 hours." });
+    }
+
+    const otpPlain = crypto.randomInt(100000, 999999).toString();
+    const hashedOtp = await bcrypt.hash(otpPlain, 10);
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minute
+
+    record.otp = hashedOtp;
+    record.expiresAt = expiresAt;
+    record.createdAt = new Date();
+    record.resendCount += 1;
+    await record.save();
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: emailIdString,
+      subject: "Your Resent OTP for Password Reset",
+      text: `Your new OTP is ${otpPlain}. It is valid for 10 minutes.`,
+    });
+
+    res.status(200).json({ status: "OTP resent successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ status: "Failed to resend OTP" });
+  }
+};
+
+
+// Verify OTP
 const verifyOtp = async (req, res) => {
   const { emailId, otp } = req.body;
-  
-  if (!emailId || !otp) return res.status(400).json({ status: "Email and OTP required" });
+  if (!emailId || !otp) return res.status(400).json({ status: "Email or OTP required" });
 
   try {
     const record = await Otp.findOne({ emailId });
     if (!record) return res.status(400).json({ status: "No OTP found for this email" });
+
+    // check if blocked
+    if (record.blockedUntil && record.blockedUntil > new Date()) {
+      return res.status(429).json({ status: "Too many failed attempts. Try again later after 24 hours." });
+    }
 
     if (record.expiresAt < new Date()) {
       await Otp.deleteOne({ emailId });
@@ -170,11 +245,21 @@ const verifyOtp = async (req, res) => {
     }
 
     const validOtp = await bcrypt.compare(otp, record.otp);
-    if (!validOtp) return res.status(400).json({ status: "Invalid OTP" });
+    if (!validOtp) {
+      record.attempts += 1;
 
-    // OTP valid → remove from DB
+      if (record.attempts >= 5) {
+        record.blockedUntil = new Date(Date.now() + 30 * 60 * 1000); // block for 30 mins
+        await record.save();
+        return res.status(429).json({ status: "Too many failed attempts. Try again later after 24 hours." });
+      }
+
+      await record.save();
+      return res.status(400).json({ status: `Invalid OTP. Attempts left: ${5 - record.attempts}` });
+    }
+
+    // OTP valid → delete record
     await Otp.deleteOne({ emailId });
-
     res.status(200).json({ status: "OTP verified successfully" });
   } catch (err) {
     console.error(err);
@@ -220,6 +305,7 @@ module.exports = {
   duplicateUserIdChecker,
   login,
   sendOtp,
+  resendOtp,   
   verifyOtp,
   resetPassword
 };

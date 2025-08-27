@@ -2,9 +2,10 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const LoginRegisterApi = createApi({
   reducerPath: "LoginRegisterApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://localhost:3000/api",
-    credentials: "include"
-   }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: "http://localhost:3000/api",
+    credentials: "include",
+  }),
   endpoints: (builder) => ({
     registerApi: builder.mutation({
       query: (credentials) => ({
@@ -37,7 +38,7 @@ export const LoginRegisterApi = createApi({
           "Content-type": "application/json; charset=UTF-8",
         },
         credentials: "include",
-      }), 
+      }),
     }),
     verifyRoute: builder.query({
       query: (userId) => ({
@@ -60,7 +61,15 @@ export const LoginRegisterApi = createApi({
         body: { emailId, otp },
       }),
     }),
-     resetPasswordApi: builder.mutation({
+    resendOtpApi: builder.mutation({
+      query: (emailId) => ({
+        url: "/resend-otp",
+        method: "POST",
+        body: { emailId },
+      }),
+    }),
+
+    resetPasswordApi: builder.mutation({
       query: ({ emailId, newPassword }) => ({
         url: "/reset-password",
         method: "POST",
@@ -77,5 +86,6 @@ export const {
   useVerifyRouteQuery,
   useSendOtpApiMutation,
   useVerifyOtpApiMutation,
-  useResetPasswordApiMutation
+  useResendOtpApiMutation,
+  useResetPasswordApiMutation,
 } = LoginRegisterApi;

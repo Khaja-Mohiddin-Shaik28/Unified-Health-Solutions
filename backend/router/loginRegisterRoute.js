@@ -1,5 +1,5 @@
 const loginRegisterRouter = require("express").Router();
-const {register,duplicateUserIdChecker, login, sendOtp, verifyOtp, resetPassword} = require("../controller/loginRegisterController");
+const {register,duplicateUserIdChecker, login, sendOtp, verifyOtp, resendOtp, resetPassword} = require("../controller/loginRegisterController");
 const {verifyRouteMiddleware} = require("../middleware/verifyRouteMiddleware");
 
 loginRegisterRouter.post("/register",register);
@@ -7,6 +7,7 @@ loginRegisterRouter.post("/duplicateUserIdChecker",duplicateUserIdChecker);
 loginRegisterRouter.post("/login",login);
 loginRegisterRouter.post("/send-otp", sendOtp);
 loginRegisterRouter.post("/verify-otp", verifyOtp);
+loginRegisterRouter.post("/resend-otp", resendOtp);
 loginRegisterRouter.post("/reset-password", resetPassword);
 
 // Protected Route

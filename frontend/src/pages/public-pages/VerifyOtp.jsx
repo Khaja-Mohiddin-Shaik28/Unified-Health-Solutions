@@ -1,25 +1,35 @@
-import React, { useState } from 'react';
-import { useVerifyOtpApiMutation } from '../../services/LoginRegisterApi';
+import React, { useState, useEffect } from 'react';
+import { useVerifyOtpApiMutation, useResendOtpApiMutation } from '../../services/LoginRegisterApi';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 function VerifyOtp() {
+  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [verifyOtp] = useVerifyOtpApiMutation();
+  const [resendOtp] = useResendOtpApiMutation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const emailId = searchParams.get('email') || '';
 
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
-  const [verifyOtp] = useVerifyOtpApiMutation();
+  const [cooldown, setCooldown] = useState(0); // seconds left
+  const [blocked, setBlocked] = useState(false); // 24h block flag
+  const [verifyingDisabled, setVerifyingDisabled] = useState(false);
 
+  // Cooldown timer
+  useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setInterval(() => setCooldown((c) => c - 1), 1000);
+      return () => clearInterval(timer);
+    }
+  }, [cooldown]);
+
+  // Input handlers
   const handleChange = (e, index) => {
     const val = e.target.value;
     if (/^\d?$/.test(val)) {
       const newOtp = [...otp];
       newOtp[index] = val;
       setOtp(newOtp);
-
-      if (val && index < otp.length - 1) {
-        document.getElementById(`otp-${index + 1}`).focus();
-      }
+      if (val && index < otp.length - 1) document.getElementById(`otp-${index + 1}`)?.focus();
     }
   };
 
@@ -28,7 +38,7 @@ function VerifyOtp() {
       const newOtp = [...otp];
       newOtp[index - 1] = "";
       setOtp(newOtp);
-      document.getElementById(`otp-${index - 1}`).focus();
+      document.getElementById(`otp-${index - 1}`)?.focus();
     }
   };
 
@@ -36,21 +46,50 @@ function VerifyOtp() {
     e.preventDefault();
     const pasteData = e.clipboardData.getData("text").trim();
     if (/^\d{6}$/.test(pasteData)) {
-      const newOtp = pasteData.split("");
-      setOtp(newOtp);
-      document.getElementById("otp-5").focus(); // move to last box
+      setOtp(pasteData.split(''));
+      document.getElementById("otp-5")?.focus();
     }
   };
 
+  // Resend OTP
+  const handleResend = async () => {
+    try {
+      const res = await resendOtp({ emailId }).unwrap();
+      if (res.blocked) {
+        setBlocked(true);
+        setVerifyingDisabled(true);
+        alert("Too many attempts. Try again after 24 hours.");
+      } else {
+        alert("OTP resent!");
+        setCooldown(60); // 1-minute cooldown
+      }
+    } catch (err) {
+      alert(err?.data?.status || "Failed to resend OTP");
+    }
+  };
+
+  // Verify OTP
   const handleSubmit = async (e) => {
     e.preventDefault();
     const otpValue = otp.join('');
     try {
-      await verifyOtp({ emailId, otp: otpValue }).unwrap();
-      alert('OTP verified successfully!');
-      navigate('/unified-health-tech/login/reset-password?email=' + encodeURIComponent(emailId));
+      const res = await verifyOtp({ emailId, otp: otpValue }).unwrap();
+      if (res.blocked) {
+        setBlocked(true);
+        setVerifyingDisabled(true);
+        alert("Too many wrong attempts. Try again after 24 hours.");
+      } else {
+        alert("OTP verified successfully!");
+        navigate(`/unified-health-tech/login/reset-password?email=${encodeURIComponent(emailId)}`);
+      }
     } catch (err) {
-      alert(err?.data?.status || 'OTP verification failed');
+      if (err?.data?.blocked) {
+        setBlocked(true);
+        setVerifyingDisabled(true);
+        alert("Too many wrong attempts. Try again after 24 hours.");
+      } else {
+        alert(err?.data?.status || "OTP verification failed");
+      }
     }
   };
 
@@ -73,21 +112,38 @@ function VerifyOtp() {
                 onChange={(e) => handleChange(e, idx)}
                 onKeyDown={(e) => handleKeyDown(e, idx)}
                 className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 text-base sm:text-lg md:text-xl"
+                disabled={blocked}
               />
             ))}
           </div>
 
+          {/* Verify Button */}
           <button
             type="submit"
-            className="w-full bg-cyan-300 hover:bg-cyan-400 text-black py-2 sm:py-3 rounded-lg font-medium transition text-sm sm:text-base md:text-lg cursor-pointer"
+            disabled={verifyingDisabled || blocked}
+            className={`w-full py-2 sm:py-3 rounded-lg font-medium transition text-sm sm:text-base md:text-lg cursor-pointer ${
+              verifyingDisabled || blocked
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-cyan-500 hover:bg-cyan-600 text-white"
+            }`}
           >
-            Verify
+            Verify OTP
           </button>
         </form>
 
+        {/* Resend OTP */}
         <p className="text-gray-500 mt-4 text-xs sm:text-sm md:text-base">
-          Didn't receive code?{' '}
-          <span className="text-cyan-400 cursor-pointer hover:underline">Resend OTP</span>
+          Didn't receive code?{" "}
+          <span
+            className={`${
+              cooldown > 0 || blocked
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-cyan-400 cursor-pointer hover:underline"
+            }`}
+            onClick={cooldown > 0 || blocked ? undefined : handleResend}
+          >
+            {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend OTP"}
+          </span>
         </p>
       </div>
     </div>
