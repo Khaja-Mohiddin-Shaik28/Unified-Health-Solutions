@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useVerifyRouteQuery } from "../../../services/LoginRegisterApi";
 import { useNavigate, useParams } from "react-router-dom";
 
-function Dashboard() {
+function RetailerDashboard() {
   const navigate = useNavigate();
   const { userId } = useParams();
   const { data, isLoading, error } = useVerifyRouteQuery(userId);
@@ -20,9 +20,9 @@ function Dashboard() {
   return (
     <div className="">
       <h1>Dashboard</h1>
-      {/* <p>Welcome, {data?.user?.userId || userId}</p> */}
+      <p>Welcome, {data?.user?.userId || userId}</p>
     </div>
   );
 }
 
-export default Dashboard;
+export default RetailerDashboard;

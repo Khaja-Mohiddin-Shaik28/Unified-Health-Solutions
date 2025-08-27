@@ -25,7 +25,7 @@ function ResetPassword() {
   const passwordValue = watch('password');
 
   return (
-    <div className="min-h-screen w-full flex flex-col justify-center items-center bg-[#273953] px-4">
+    <div className="min-h-screen w-full flex flex-col justify-center items-center bg-black px-4">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white rounded-2xl p-8 sm:p-10 md:p-12 lg:p-16 w-[90%] sm:w-[80%] md:w-[70%] lg:w-[50%] shadow-lg"
@@ -43,7 +43,7 @@ function ResetPassword() {
 
         {/* New Password */}
         <div className="password mb-4">
-          <label className="block font-medium text-gray-700 mb-1">New Password</label>
+          <label className="block font-medium text-black mb-1">New Password</label>
           <input
             type="password"
             {...register('password', {
@@ -54,7 +54,7 @@ function ResetPassword() {
                 message: 'Password must contain at least one uppercase letter and one special character'
               }
             })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-cyan-400 focus:outline-none text-sm sm:text-base md:text-base"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9485FF] focus:outline-none text-sm sm:text-base md:text-base"
             placeholder="••••••••"
           />
           {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
@@ -62,14 +62,14 @@ function ResetPassword() {
 
         {/* Confirm Password */}
         <div className="password mb-4">
-          <label className="block font-medium text-gray-700 mb-1">Confirm Password</label>
+          <label className="block font-medium text-black mb-1">Confirm Password</label>
           <input
             type="password"
             {...register('confirmPassword', {
               required: 'Confirm password is required',
               validate: value => value === passwordValue || 'Passwords do not match'
             })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-cyan-400 focus:outline-none text-sm sm:text-base md:text-base"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#9485FF] focus:outline-none text-sm sm:text-base md:text-base"
             placeholder="••••••••"
             onPaste={(e) => e.preventDefault()} // disable paste
           />
@@ -77,13 +77,15 @@ function ResetPassword() {
         </div>
 
         {/* Submit Button */}
+                <div className="flex items-center justify-center">
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-cyan-300 hover:bg-cyan-400 text-black py-2 sm:py-3 rounded-lg font-medium transition mt-6 text-sm sm:text-base md:text-lg disabled:opacity-50 cursor-pointer"
+          className="Btn"
         >
-          {isSubmitting ? 'Resetting...' : 'Reset Password'}
+          {isSubmitting ? 'Resetting...' : 'Reset'}
         </button>
+        </div>
       </form>
     </div>
   );

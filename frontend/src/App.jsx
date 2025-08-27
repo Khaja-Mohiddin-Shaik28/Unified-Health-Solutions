@@ -7,7 +7,8 @@ import Register from './pages/public-pages/Register';
 import ForgotPassword from "./pages/public-pages/ForgotPassword";
 import VerifyOtp from "./pages/public-pages/VerifyOtp";
 import ResetPassword from "./pages/public-pages/ResetPassword";
-import Dashboard from "./pages/private-pages/user/Dashboard";
+import DistributorDashboard from "./pages/private-pages/distributor/DistributorDashboard";
+import RetailerDashboard from "./pages/private-pages/retailer/RetailerDashboard";
 
 function App() {
 
@@ -26,8 +27,11 @@ function App() {
           <Route path="/unified-health-tech/login/reset-password" element={<ResetPassword />} />
 
 
-          {/* Routes for user dashboard */}
-          <Route path="/unified-health-tech/user/dashboard/:userId" element={<Dashboard />} />
+          {/* Routes for Distributor dashboard */}
+          <Route path="/unified-health-tech/distributor/dashboard/:userId" element={<DistributorDashboard />} />
+
+        {/* Routes for Retailer dashboard */}
+          <Route path="/unified-health-tech/retailer/dashboard/:userId" element={<RetailerDashboard />} />
         </Routes>
       </BrowserRouter>
     </div>

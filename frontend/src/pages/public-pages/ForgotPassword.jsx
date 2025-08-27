@@ -26,7 +26,7 @@ function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col justify-center items-center bg-[#273953] px-4">
+    <div className="min-h-screen w-full flex flex-col justify-center items-center bg-black px-4">
 
       {/* form */}
       <form
@@ -46,7 +46,7 @@ function ForgotPassword() {
 
         {/* Email */}
         <div className="email">
-          <label className="block font-medium text-gray-700 mb-1 mt-6">Email</label>
+          <label className="block font-medium text-black mb-1 mt-6">Email</label>
           <input
             type="email"
             {...register('emailId', {
@@ -56,19 +56,21 @@ function ForgotPassword() {
                 message: 'Enter a valid email address'
               }
             })}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-cyan-400 focus:outline-none text-sm sm:text-base md:text-base"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-none text-sm sm:text-base md:text-base"
             placeholder="you@example.com"
           />
         </div>
 
         {/* Submit Button */}
+                <div className="flex items-center justify-center mt-5">
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-cyan-300 hover:bg-cyan-400 text-black py-2 sm:py-3 rounded-lg font-medium transition mt-8 text-sm sm:text-base md:text-lg disabled:opacity-50 cursor-pointer"
+          className="Btn "
         >
-          {isSubmitting ? 'Sending...' : 'Send Reset Link'}
+          {isSubmitting ? 'Sending...' : 'Send'}
         </button>
+        </div>
       </form>
     </div>
   );

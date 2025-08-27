@@ -30,7 +30,7 @@ const register = async (req, res) => {
     const credentials = {
       ...data,
       password: hashedPassword,
-      role: "user",
+      role: data.role,
     };
 
     // adding user to the database
@@ -59,45 +59,40 @@ const duplicateUserIdChecker = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const data = req.body;
-    // checking if user exists or not
-    const existingUserData = await User.findOne({ emailId: data.emailId });
+    const { userId, password, role } = req.body;
 
-    // if emailId doesn't exist
+    // Check if user exists with the given userId and role
+    const existingUserData = await User.findOne({ userId, role });
+
+    // If no user found
     if (!existingUserData) {
-      return res.status(404).json({ status: "User does not exist" });
+      return res.status(404).json({ status: "User does not exist with this role" });
     }
 
-    // if emailId exist then we compare passwords
-    const validPassword = await bcrypt.compare(
-      data.password,
-      existingUserData.password
-    );
+    // Compare passwords
+    const validPassword = await bcrypt.compare(password, existingUserData.password);
     if (!validPassword) {
       return res.status(401).json({ status: "Invalid Password" });
-    } else {
-      // Creating a jwt token
-      const token = jwt.sign(
-        { userId: existingUserData.userId },
-        process.env.key,
-        {
-          expiresIn: "1d",
-        }
-      );
-
-      // storing token in a cookie
-      // maxAge: 1 * 24 * 60 * 60 * 1000, 
-      res.cookie("token", token, {
-        httpOnly: true,
-        maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
-      });
-
-      return res.status(200).json({ status: existingUserData });
     }
+
+    // Creating a JWT token
+    const token = jwt.sign({ userId: existingUserData.userId }, process.env.key, {
+      expiresIn: "1d",
+    });
+
+    // Storing token in a cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
+    });
+
+    return res.status(200).json({ status: existingUserData });
   } catch (err) {
-    return res.status(404).json({ status: `Login failed ${err.msg}` });
+    return res.status(500).json({ status: `Login failed: ${err.message}` });
   }
 };
+
+
 
 // Send OTP (first time or reset)
 const sendOtp = async (req, res) => {

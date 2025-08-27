@@ -94,7 +94,7 @@ function VerifyOtp() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#1E2A3A] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-black px-4">
       <div className="bg-white rounded-2xl p-8 sm:p-10 md:p-12 lg:p-16 w-[90%] sm:w-[80%] md:w-[70%] lg:w-[50%] shadow-lg text-center">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-4">Unified Health Tech Solutions</h1>
         <p className="text-gray-600 mb-3 sm:mb-6 text-sm sm:text-base">Enter OTP</p>
@@ -111,24 +111,22 @@ function VerifyOtp() {
                 value={val}
                 onChange={(e) => handleChange(e, idx)}
                 onKeyDown={(e) => handleKeyDown(e, idx)}
-                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 text-base sm:text-lg md:text-xl"
+                className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 text-center border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#9485FF] text-base sm:text-lg md:text-xl"
                 disabled={blocked}
               />
             ))}
           </div>
 
           {/* Verify Button */}
+                  <div className="flex items-center justify-center">
           <button
             type="submit"
             disabled={verifyingDisabled || blocked}
-            className={`w-full py-2 sm:py-3 rounded-lg font-medium transition text-sm sm:text-base md:text-lg cursor-pointer ${
-              verifyingDisabled || blocked
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-cyan-500 hover:bg-cyan-600 text-white"
-            }`}
+            className={"Btn"}
           >
             Verify OTP
           </button>
+          </div>
         </form>
 
         {/* Resend OTP */}
@@ -138,7 +136,7 @@ function VerifyOtp() {
             className={`${
               cooldown > 0 || blocked
                 ? "text-gray-400 cursor-not-allowed"
-                : "text-cyan-400 cursor-pointer hover:underline"
+                : "text-[#9485FF] cursor-pointer hover:underline"
             }`}
             onClick={cooldown > 0 || blocked ? undefined : handleResend}
           >
