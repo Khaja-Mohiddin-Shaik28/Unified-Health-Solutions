@@ -42,6 +42,10 @@ function Navbar({ setIsSidebarOpen, isSidebarOpen, onContentChange }) {
       name: "SHORTAGE BOOK",
       dropdown: [{ name: "Shortage Book" }, { name: "My SB Products" }],
     },
+    {
+      name: "RECIEVED ORDERS",
+      dropdown: [{ name: "By Date Recieved" }],
+    },
   ];
 
   const handleLinkClick = (name) => {
