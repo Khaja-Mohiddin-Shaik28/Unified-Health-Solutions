@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from "react-hook-form";
 import { useRegisterApiMutation, useDuplicateUserIdCheckerApiMutation } from '../../services/LoginRegisterApi';
-import { useNavigate } from 'react-router';
+import { useNavigate, Link } from 'react-router';
 
 function Register() {
   const [registerApi, { isLoading }] = useRegisterApiMutation();
@@ -10,6 +10,7 @@ function Register() {
   const [userIdDuplicateResponse, setUserIdDuplicateResponse] = useState();
   const [userId, setUserId] = useState();
   const [selectedRole, setSelectedRole] = useState("distributor");
+
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors, isSubmitting }, watch } = useForm({ mode: 'onChange' });
 
@@ -178,7 +179,7 @@ function Register() {
       <div className='login mt-8 text-center'>
         <p className="text-xs sm:text-sm text-white">
           Already have an account?{' '}
-          <a href="/unified-health-tech/login" className="text-[#9485FF] hover:underline">Login</a>
+          <Link to="/unified-health-tech/login" className="text-[#9485FF] hover:underline">Login</Link>
         </p>
       </div>
 

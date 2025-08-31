@@ -127,7 +127,9 @@ function Login() {
       <div className="signup mt-8 text-center">
         <p className="text-xs sm:text-sm text-white">
           Don't have an account?{' '}
-          <a href="/unified-health-tech/register" className="text-[#9485FF] hover:underline">Sign up</a>
+
+          <Link to="/unified-health-tech/register" className="text-[#9485FF] hover:underline">Sign up</Link>
+
         </p>
       </div>
     </div>
