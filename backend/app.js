@@ -8,10 +8,10 @@ const cookieParser = require("cookie-parser");
 // router import
 const loginRegisterRouter = require("./router/loginRegisterRoute");
 
-
+const BASE_URL = process.env.BASE_URL
 // CORS Setup
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: BASE_URL,
     credentials : true
 }
 
