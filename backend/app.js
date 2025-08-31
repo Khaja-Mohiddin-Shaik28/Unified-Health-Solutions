@@ -25,7 +25,7 @@ app.use(cookieParser())
 
 // Database Connection
 dbConnection = async ()=>{
-        await mongoose.connect(process.env.dbURL || "mongodb+srv://Test:1234@cluster0.oyxicni.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
+        await mongoose.connect(process.env.dbURL || "mongodb+srv://Test:1234@cluster0.oyxicni.mongodb.net/phase1-demo?retryWrites=true&w=majority&appName=Cluster0");
         app.listen(process.env.PORT || 3000);
 }
 dbConnection();
