@@ -1,10 +1,10 @@
 const User = require("../model/userSchema");
-const Otp = require("../model/otpSchema")
+const Otp = require("../model/otpSchema");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
-require('dotenv').config();
+require("dotenv").config();
 
 const register = async (req, res) => {
   try {
@@ -23,8 +23,8 @@ const register = async (req, res) => {
     }
 
     //password hashing
-   const salt = await bcrypt.genSalt(10); // 10 is the cost factor
-  const hashedPassword = await bcrypt.hash(data.password, salt);
+    const salt = await bcrypt.genSalt(10); // 10 is the cost factor
+    const hashedPassword = await bcrypt.hash(data.password, salt);
 
     // Updating password
     const credentials = {
@@ -66,24 +66,35 @@ const login = async (req, res) => {
 
     // If no user found
     if (!existingUserData) {
-      return res.status(404).json({ status: "User does not exist with this role" });
+      return res
+        .status(404)
+        .json({ status: "User does not exist with this role" });
     }
 
     // Compare passwords
-    const validPassword = await bcrypt.compare(password, existingUserData.password);
+    const validPassword = await bcrypt.compare(
+      password,
+      existingUserData.password
+    );
     if (!validPassword) {
       return res.status(401).json({ status: "Invalid Password" });
     }
 
     // Creating a JWT token
-    const token = jwt.sign({ userId: existingUserData.userId }, process.env.key, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { userId: existingUserData.userId },
+      process.env.key,
+      {
+        expiresIn: "1d",
+      }
+    );
 
     // Storing token in a cookie
     res.cookie("token", token, {
       httpOnly: true,
-      maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 1 * 24 * 60 * 60 * 1000,
+      secure: true,
+      sameSite: "none",
     });
 
     return res.status(200).json({ status: existingUserData });
@@ -92,12 +103,10 @@ const login = async (req, res) => {
   }
 };
 
-
-
 // Send OTP (first time or reset)
 const sendOtp = async (req, res) => {
   const { emailId } = req.body;
-  const emailIdString = typeof emailId === 'object' ? emailId.emailId : emailId;
+  const emailIdString = typeof emailId === "object" ? emailId.emailId : emailId;
 
   if (!emailIdString) return res.status(400).json({ status: "Email required" });
 
@@ -114,14 +123,14 @@ const sendOtp = async (req, res) => {
       return res.status(429).json({
         status: "Too many attempts. Try again after 24 hours.",
         blocked: true,
-        remaining: Math.ceil((record.blockedUntil - new Date()) / 1000)
+        remaining: Math.ceil((record.blockedUntil - new Date()) / 1000),
       });
     }
 
     // If OTP exists and not expired, prevent sending new one
     if (record && record.expiresAt > new Date()) {
       return res.status(400).json({
-        status: "OTP already sent. Please wait before requesting a new one."
+        status: "OTP already sent. Please wait before requesting a new one.",
       });
     }
 
@@ -138,7 +147,7 @@ const sendOtp = async (req, res) => {
         createdAt: new Date(),
         attempts: 0,
         resendCount: 0,
-        blockedUntil: null
+        blockedUntil: null,
       });
     } else {
       // Reset OTP, but preserve block if it exists
@@ -166,28 +175,31 @@ const sendOtp = async (req, res) => {
     });
 
     res.status(200).json({ status: "OTP sent successfully" });
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ status: "Failed to send OTP" });
   }
 };
 
-
-
-
 //  Resend OTP - if user navigates back timer start again
 const resendOtp = async (req, res) => {
   const { emailId } = req.body;
-   const emailIdString = typeof emailId === 'object' ? emailId.emailId : emailId;
+  const emailIdString = typeof emailId === "object" ? emailId.emailId : emailId;
   if (!emailIdString) return res.status(400).json({ status: "Email required" });
 
   try {
-    const record = await Otp.findOne({ emailId : emailIdString});
-    if (!record) return res.status(400).json({ status: "No OTP request found. Please request a new one." });
+    const record = await Otp.findOne({ emailId: emailIdString });
+    if (!record)
+      return res
+        .status(400)
+        .json({ status: "No OTP request found. Please request a new one." });
 
     if (record.resendCount >= 3) {
-      return res.status(429).json({ status: "Resend limit reached. Please try later after 24 hours." });
+      return res
+        .status(429)
+        .json({
+          status: "Resend limit reached. Please try later after 24 hours.",
+        });
     }
 
     const otpPlain = crypto.randomInt(100000, 999999).toString();
@@ -219,19 +231,24 @@ const resendOtp = async (req, res) => {
   }
 };
 
-
 // Verify OTP
 const verifyOtp = async (req, res) => {
   const { emailId, otp } = req.body;
-  if (!emailId || !otp) return res.status(400).json({ status: "Email or OTP required" });
+  if (!emailId || !otp)
+    return res.status(400).json({ status: "Email or OTP required" });
 
   try {
     const record = await Otp.findOne({ emailId });
-    if (!record) return res.status(400).json({ status: "No OTP found for this email" });
+    if (!record)
+      return res.status(400).json({ status: "No OTP found for this email" });
 
     // check if blocked
     if (record.blockedUntil && record.blockedUntil > new Date()) {
-      return res.status(429).json({ status: "Too many failed attempts. Try again later after 24 hours." });
+      return res
+        .status(429)
+        .json({
+          status: "Too many failed attempts. Try again later after 24 hours.",
+        });
     }
 
     if (record.expiresAt < new Date()) {
@@ -246,11 +263,17 @@ const verifyOtp = async (req, res) => {
       if (record.attempts >= 5) {
         record.blockedUntil = new Date(Date.now() + 30 * 60 * 1000); // block for 30 mins
         await record.save();
-        return res.status(429).json({ status: "Too many failed attempts. Try again later after 24 hours." });
+        return res
+          .status(429)
+          .json({
+            status: "Too many failed attempts. Try again later after 24 hours.",
+          });
       }
 
       await record.save();
-      return res.status(400).json({ status: `Invalid OTP. Attempts left: ${5 - record.attempts}` });
+      return res
+        .status(400)
+        .json({ status: `Invalid OTP. Attempts left: ${5 - record.attempts}` });
     }
 
     // OTP valid → delete record
@@ -261,8 +284,6 @@ const verifyOtp = async (req, res) => {
     res.status(500).json({ status: "Failed to verify OTP" });
   }
 };
-
-
 
 const resetPassword = async (req, res) => {
   const { emailId, newPassword } = req.body;
@@ -282,8 +303,7 @@ const resetPassword = async (req, res) => {
       { new: true }
     );
 
-    if (!user)
-      return res.status(404).json({ status: "User not found" });
+    if (!user) return res.status(404).json({ status: "User not found" });
 
     res.status(200).json({ status: "Password updated successfully" });
   } catch (err) {
@@ -294,13 +314,12 @@ const resetPassword = async (req, res) => {
 
 module.exports = { resetPassword };
 
-
 module.exports = {
   register,
   duplicateUserIdChecker,
   login,
   sendOtp,
-  resendOtp,   
+  resendOtp,
   verifyOtp,
-  resetPassword
+  resetPassword,
 };
