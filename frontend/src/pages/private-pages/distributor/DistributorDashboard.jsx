@@ -3,8 +3,8 @@ import { useState } from "react";
 import { useVerifyRouteQuery } from "../../../services/LoginRegisterApi";
 import { useNavigate, useParams } from "react-router-dom";
 import Sidebar from "./sidebar-pages/Sidebar";
-import Navbar from "./nav-pages/Navbar";
 import ContentDisplay from "./ContentDisplay";
+import Navbar from "./navbar/Navbar";
 
 function DistributorDashboard() {
   const navigate = useNavigate();
@@ -44,15 +44,14 @@ function DistributorDashboard() {
 
       {/* Main Content Area */}
       <div className={`flex-1 flex flex-col transition-all duration-300 ${isSidebarOpen ? 'lg:ml-64' : 'lg:ml-0'}`}>
-        {/* Navbar - This component contains the top bar */}
+      {/* Navbar - This component contains the top bar */}
         <Navbar
           setIsSidebarOpen={setIsSidebarOpen}
           isSidebarOpen={isSidebarOpen}
           onContentChange={handleContentChange}
         />
-
         {/* Content Section - Main area for displaying content */}
-        <div className="p-8 flex-1">
+        <div className=" ">
           <ContentDisplay content={content} />
         </div>
       </div>

@@ -3,8 +3,8 @@ import { useState } from "react";
 import { useVerifyRouteQuery } from "../../../services/LoginRegisterApi";
 import { useNavigate, useParams } from "react-router-dom";
 import Sidebar from "./sidebar-pages/Sidebar";
-import Navbar from "./nav-pages/Navbar";
 import ContentDisplay from "./ContentDisplay";
+import Navbar from "./navbar/Navbar";
 
 function RetailerDashboard() {
   const navigate = useNavigate();
@@ -29,12 +29,12 @@ function RetailerDashboard() {
   }, [error, data, isLoading, navigate]);
 
   if (isLoading) return <div>Loading...</div>;
-  
+
   // Map of page names to their components
 
-  
+
   return (
-     <div className="flex min-h-screen bg-gray-100 font-sans">
+    <div className="flex min-h-screen bg-gray-100 font-sans">
       {/* Sidebar - This component contains the left navigation menu */}
       <Sidebar
         isSidebarOpen={isSidebarOpen}
@@ -50,7 +50,6 @@ function RetailerDashboard() {
           isSidebarOpen={isSidebarOpen}
           onContentChange={handleContentChange}
         />
-
         {/* Content Section - Main area for displaying content */}
         <div className="p-8 flex-1">
           <ContentDisplay content={content} />
